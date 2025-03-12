@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("rainbow")
 public class RainbowController {
 
+
     @GetMapping
     public void getAll(){
 
