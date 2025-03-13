@@ -1,22 +1,20 @@
-package com.example.rainbowcompany.domain.rainbow;
+package com.example.rainbowcompany.domain.user;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Table(name = "users")
+@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "rainbows")
-@Entity(name = "rainbows")
-public class Rainbow {
-    @Id
+public class User {
+
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
     private String id;
 
@@ -34,4 +32,12 @@ public class Rainbow {
 
     @Column(name = "note")
     private String note;
+
+    public User(RequestUser requestuser) {
+        this.name = requestuser.name();
+        this.cpf = requestuser.cpf();
+        this.email = requestuser.email();
+        this.color = requestuser.color();
+        this.note = requestuser.note();
+    }
 }

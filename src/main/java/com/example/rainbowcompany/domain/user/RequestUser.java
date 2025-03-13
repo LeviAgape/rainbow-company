@@ -1,6 +1,6 @@
-package com.example.rainbowcompany.domain.rainbow;
+package com.example.rainbowcompany.domain.user;
 
-public record RequestRainbow(
+public record RequestUser(
         String id,
         String name,
         String cpf,
