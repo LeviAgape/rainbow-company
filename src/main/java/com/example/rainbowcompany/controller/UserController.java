@@ -1,9 +1,14 @@
 package com.example.rainbowcompany.controller;
 
 import com.example.rainbowcompany.domain.user.RequestUser;
+import com.example.rainbowcompany.domain.user.User;
 import com.example.rainbowcompany.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -21,8 +26,9 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<Page<User>> getAllUsers(
+            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
     @PostMapping
@@ -30,10 +36,10 @@ public class UserController {
         return userService.registerUser(data);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity updateUser(@Validated @RequestBody RequestUser data) {
-        return userService.updateUser(data);
+    public ResponseEntity updateUser(@PathVariable String id, @Validated @RequestBody RequestUser data) {
+        return userService.updateUser(id, data);
     }
 
     @DeleteMapping("/{id}")
