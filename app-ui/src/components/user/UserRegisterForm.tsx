@@ -14,6 +14,7 @@ import {
   Box,
   InputAdornment,
 } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 import { UserRegister } from "./interfaceUser";
 import { ColorData } from "../color/color-utills";
 import { FormatCpfRegisterUser } from "./UserMasksInfo";
@@ -38,9 +39,14 @@ export const UserRegisterForm = () => {
   const [cpfError, setCpfError] = useState("");
 
   const handleChange = (
-    event: React.ChangeEvent<{ name?: string; value: unknown }>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = event.target as { name: string; value: string };
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleChangeColor = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
 
@@ -143,7 +149,7 @@ export const UserRegisterForm = () => {
           <Select
             name="color"
             value={formData.color}
-            onChange={handleChange}
+            onChange={handleChangeColor}
             label="Cor Preferida"
             startAdornment={
               <InputAdornment position="start">
