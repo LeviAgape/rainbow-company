@@ -7,8 +7,17 @@ import {
   Paper,
   Snackbar,
   Alert,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Box,
+  InputAdornment,
 } from "@mui/material";
 import { UserRegister } from "./interfaceUser";
+import { ColorData } from "../color/color-utills";
+import { FormatCpfRegisterUser } from "./UserMasksInfo";
+import { Person, Email, Palette, Badge } from "@mui/icons-material";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,10 +35,27 @@ export const UserRegisterForm = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success"
   );
+  const [cpfError, setCpfError] = useState("");
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
+  const handleChange = (
+    event: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    const { name, value } = event.target as { name: string; value: string };
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleCPFChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const rawCpf = event.target.value.replace(/\D/g, "");
+    setFormData({
+      ...formData,
+      cpf: FormatCpfRegisterUser(event.target.value),
+    });
+
+    if (rawCpf.length < 11) {
+      setCpfError("CPF deve ter 11 dígitos.");
+    } else {
+      setCpfError("");
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -48,17 +74,33 @@ export const UserRegisterForm = () => {
 
       setFormData({ name: "", email: "", color: "", note: "", cpf: "" });
     } catch (error) {
-      setSnackbarMessage(
-        "O usuário não foi cadastrado, verifique suas informações."
-      );
+      setSnackbarMessage("CPF ou EMAIL já cadastrados na base de dados.");
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
     }
   };
 
   return (
-    <Paper sx={{ padding: 3, maxWidth: 400, margin: "auto", marginTop: 4 }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+    <Paper
+      sx={{
+        padding: 4,
+        maxWidth: 500,
+        margin: "auto",
+        marginTop: 6,
+        backgroundColor: "#f5f5f5",
+        boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)",
+        borderRadius: "16px",
+      }}
+    >
+      <Typography
+        variant="h5"
+        sx={{
+          marginBottom: 3,
+          fontWeight: "bold",
+          textAlign: "center",
+          color: "#1976D2",
+        }}
+      >
         Cadastre um novo usuário
       </Typography>
       <form onSubmit={handleSubmit}>
@@ -70,6 +112,13 @@ export const UserRegisterForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Person sx={{ color: "#1976D2 !important" }} />
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           fullWidth
@@ -80,38 +129,98 @@ export const UserRegisterForm = () => {
           onChange={handleChange}
           margin="normal"
           required
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Email sx={{ color: "#1976D2 !important" }} />
+              </InputAdornment>
+            ),
+          }}
         />
-        <TextField
-          fullWidth
-          label="Cor"
-          name="color"
-          value={formData.color}
-          onChange={handleChange}
-          margin="normal"
-        />
+
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Cor Preferida</InputLabel>
+          <Select
+            name="color"
+            value={formData.color}
+            onChange={handleChange}
+            label="Cor Preferida"
+            startAdornment={
+              <InputAdornment position="start">
+                <Palette sx={{ color: "#1976D2 !important" }} />
+              </InputAdornment>
+            }
+          >
+            {ColorData.map((color) => (
+              <MenuItem key={color.name} value={color.name}>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Box
+                    sx={{
+                      width: 20,
+                      height: 20,
+                      backgroundColor: color.colorBackground,
+                      borderRadius: 1,
+                      border: "1px solid #ccc",
+                    }}
+                  />
+                  {color.name}
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <TextField
           fullWidth
           label="Observações"
           name="note"
           value={formData.note}
-          onChange={handleChange}
+          onChange={(event) => {
+            if (event.target.value.length <= 630) {
+              handleChange(event);
+            }
+          }}
           margin="normal"
+          multiline
+          minRows={4}
+          inputProps={{ maxLength: 630 }}
+          helperText={`${formData.note.length}/630 caracteres`}
         />
+
         <TextField
           fullWidth
           label="CPF"
           name="cpf"
           value={formData.cpf}
-          onChange={handleChange}
+          onChange={handleCPFChange}
           margin="normal"
+          placeholder="___.___.___-__"
           required
+          error={!!cpfError}
+          helperText={cpfError}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Badge sx={{ color: "#1976D2 !important" }} />
+              </InputAdornment>
+            ),
+          }}
         />
+
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ marginTop: 2 }}
+          sx={{
+            marginTop: 3,
+            padding: 1.5,
+            fontSize: "1rem",
+            fontWeight: "bold",
+          }}
+          disabled={
+            cpfError !== "" || formData.cpf.replace(/\D/g, "").length < 11
+          }
         >
           Registrar
         </Button>
