@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgresql:
     image: postgres
@@ -18,7 +16,9 @@ services:
       start_period: 10s
 
   app:
-    build: .
+    build:
+      context: ./app-api  
+      dockerfile: Dockerfile  
     container_name: spring_app
     restart: always
     depends_on:
@@ -30,3 +30,20 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgre_sql:5432/user
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: 123456
+  frontend:
+    build:
+      context: ./app-ui  
+      dockerfile: Dockerfile  
+    container_name: frontend_app
+    restart: always
+    ports:
+      - "5173:80"  
+    environment:
+      - VITE_API_URL=http://backend:8080  
+    depends_on:
+      - app
+
+networks:
+  default:
+    driver: bridge
